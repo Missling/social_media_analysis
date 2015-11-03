@@ -1,0 +1,5 @@
+<p>Hello <%= @user.screen_name %></p>
+
+<% @followers.each do |follower| %>
+<%= follower.screen_name %>
+<% end %>

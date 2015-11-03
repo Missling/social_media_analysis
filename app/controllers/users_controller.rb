@@ -4,6 +4,16 @@ class UsersController < ApplicationController
   # GET /users/:id.:format
   def show
     # authorize! :read, @user
+
+    client = Twitter::REST::Client.new do |config|
+      config.consumer_key        = ENV['API_KEY']
+      config.consumer_secret     = ENV['API_SECRET']
+      config.access_token        = ENV['ACCESS_TOKEN']
+      config.access_token_secret = ENV['ACCESS_SECRET']
+    end
+
+    @followers = client.followers(@user.screen_name)
+
   end
 
   # GET /users/:id/edit
@@ -29,7 +39,7 @@ class UsersController < ApplicationController
   # GET/PATCH /users/:id/finish_signup
   def finish_signup
     # authorize! :update, @user 
-    if request.patch? && params[:user] #&& params[:user][:email]
+    if request.patch? && params[:user] #&& params[:user][:email] 
       if @user.update(user_params)
         # @user.skip_reconfirmation!
         sign_in(@user, bypass: true)
