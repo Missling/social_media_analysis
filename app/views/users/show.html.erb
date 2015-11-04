@@ -1,6 +1,23 @@
 <p>Hello <%= @user.name %></p>
 
-<p>Most Influential Followers: <%= @followers %></p>
-<p>Verified Followers: <%= %></p>
-<p>Global Reach of Tweet: <%= %></p>
+<div>
+<p>Most Influential Followers: </p>
+  <% @sorted_followers.each do |follower| %>
+    <%= follower.screen_name %>
+  <% end %>
+</div>
+
+<div>
+<p>Verified Followers: </p>
+  <% @followers.each do |follower| %>
+    <% if follower.verified_follower == true %>
+      <p><%= follower.screen_name %></p>
+    <% end %>
+  <% end %>
+</div>
+
+<div>
+  <p>Global Reach of Tweet: <%= @total_followers %></p>
+</div>
+
 <p>Recent Followers: <%= %></p>

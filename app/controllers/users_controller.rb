@@ -4,34 +4,48 @@ class UsersController < ApplicationController
   # GET /users/:id.:format
   def show
     # authorize! :read, @user
+    if @user.datetime.nil? || Time.now > (@user.datetime) * (60 * 60 * 24)
 
-    client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = ENV['API_KEY']
-      config.consumer_secret     = ENV['API_SECRET']
-      config.access_token        = ENV['ACCESS_TOKEN']
-      config.access_token_secret = ENV['ACCESS_SECRET']
-    end
-
-    @followers = client.followers("yapinator")
-
-    @followers.each do |twitter_follower|
-
-      follower_id = twitter_follower[:id]
-      follower = Follower.find_by(twitter_id: follower_id, user_id: @user.id)
-
-      if follower.nil?
-
-        follower = Follower.create(
-          screen_name: twitter_follower[:screen_name],
-          twitter_id: twitter_follower[:id],
-          verified_follower: twitter_follower[:verified]
-        )
-
-        @user.followers << follower 
+      client = Twitter::REST::Client.new do |config|
+        config.consumer_key        = ENV['API_KEY']
+        config.consumer_secret     = ENV['API_SECRET']
+        config.access_token        = ENV['ACCESS_TOKEN']
+        config.access_token_secret = ENV['ACCESS_SECRET']
       end
 
-      follower.followers_count = twitter_follower[:followers_count]
-      follower.save
+      # @followers = client.followers(@user.twitter_id)
+      @followers = client.followers("yapinator")
+
+      @followers.each do |twitter_follower|
+
+        follower_id = twitter_follower[:id]
+        follower = Follower.find_by(twitter_id: follower_id, user_id: @user.id)
+
+        if follower.nil?
+
+          follower = Follower.create(
+            screen_name: twitter_follower[:screen_name],
+            twitter_id: twitter_follower[:id],
+            verified_follower: twitter_follower[:verified]
+          )
+
+          @user.followers << follower 
+        end
+
+        follower.followers_count = twitter_follower[:followers_count]
+        follower.save
+      end
+
+      @user.datetime = Time.now
+
+      @total_followers = 0
+      @user.followers.each do |follower|
+        @total_followers += follower.followers_count
+      end
+
+      ten_percent = (@user.followers.count / 10)
+      @sorted_followers = @user.followers.order(followers_count: :desc).first(ten_percent)
+
     end
   end
 
