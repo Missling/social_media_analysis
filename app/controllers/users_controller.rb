@@ -12,8 +12,27 @@ class UsersController < ApplicationController
       config.access_token_secret = ENV['ACCESS_SECRET']
     end
 
-    @followers = client.followers(@user.screen_name)
+    @followers = client.followers(@user.screen_name).to_hash[:users]
 
+    @followers.each do |twitter_follower|
+
+      follower_id = twitter_follower[:id]
+      follower = Follower.find_by(twitter_id: follower_id, user_id: @user.id)
+
+      if follower.nil?
+
+        follower = Follower.create(
+          screen_name: twitter_follower[:screen_name],
+          twitter_id: twitter_follower[:id],
+          verified_follower: twitter_follower[:verified]
+        )
+
+        @user.followers << follower 
+      end
+
+      follower.followers_count = twitter_follower[:followers_count]
+      follower.save
+    end
   end
 
   # GET /users/:id/edit
