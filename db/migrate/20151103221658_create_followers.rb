@@ -3,7 +3,7 @@ class CreateFollowers < ActiveRecord::Migration
     create_table :followers do |t|
       t.references :user
       t.string :screen_name 
-      t.integer :twitter_id
+      t.string :twitter_id
       t.integer :followers_count
       t.boolean :verified_follower, default: false
 
@@ -11,3 +11,4 @@ class CreateFollowers < ActiveRecord::Migration
     end
   end
 end
+

@@ -12,7 +12,7 @@ class UsersController < ApplicationController
       config.access_token_secret = ENV['ACCESS_SECRET']
     end
 
-    @followers = client.followers(@user.screen_name).to_hash[:users]
+    @followers = client.followers("yapinator")
 
     @followers.each do |twitter_follower|
 

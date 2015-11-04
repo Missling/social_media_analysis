@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(version: 20151103221658) do
   create_table "followers", force: :cascade do |t|
     t.integer  "user_id"
     t.string   "screen_name"
-    t.integer  "twitter_id"
+    t.string   "twitter_id"
     t.integer  "followers_count"
     t.boolean  "verified_follower", default: false
     t.datetime "created_at",                        null: false
