@@ -13,13 +13,16 @@ class UsersController < ApplicationController
         config.access_token_secret = ENV['ACCESS_SECRET']
       end
 
-      # @followers = client.followers(@user.twitter_id)
-      @followers = client.followers("yapinator")
+      @followers = client.followers(@user.screen_name)
 
-      @followers.each do |twitter_follower|
+      recent_followers = []
+
+      @followers.each_with_index do |twitter_follower, index|
 
         follower_id = twitter_follower[:id]
         follower = Follower.find_by(twitter_id: follower_id, user_id: @user.id)
+
+        recent_followers << follower if index < 10       
 
         if follower.nil?
 
@@ -34,19 +37,18 @@ class UsersController < ApplicationController
 
         follower.followers_count = twitter_follower[:followers_count]
         follower.save
+
+        @user.datetime = Time.now
       end
-
-      @user.datetime = Time.now
-
-      @total_followers = 0
-      @user.followers.each do |follower|
-        @total_followers += follower.followers_count
-      end
-
-      ten_percent = (@user.followers.count / 10)
-      @sorted_followers = @user.followers.order(followers_count: :desc).first(ten_percent)
-
     end
+    
+    @total_followers = 0
+    @user.followers.each do |follower|
+      @total_followers += follower.followers_count
+    end
+
+    ten_percent = (@user.followers.count / 10)
+    @sorted_followers = @user.followers.order(followers_count: :desc).first(ten_percent)
   end
 
   # GET /users/:id/edit
