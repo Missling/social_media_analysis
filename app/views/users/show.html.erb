@@ -1,29 +1,46 @@
-<h1>Hello <%= @user.name %></h1>
+<div class="center">
+  <h1>Hello <%= @user.name %>!</h1>
 
-<div>
-<h2>Most Influential Followers: </h2>
-  <% @sorted_followers.each do |follower| %>
-    <p><%= follower.screen_name %></p>
-    <p>Numbers of Followers: <%= follower.followers_count %></p>
-  <% end %>
-</div>
+  <div>
+  <h2>Most Influential Followers: </h2>
+    <table class="center">
+      <tr>
+        <td>Twitter User</td>
+        <td>Numbers of Followers</td>
+      </tr>
+      <% @sorted_followers_by_count.each do |follower| %>
+        <tr>
+          <td><%= follower.screen_name %></td>
+          <td><%= follower.followers_count %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
 
-<div>
-  <h2>Verified Followers: </h2>
-  <% @user.followers.each do |follower| %>
-    <% if follower.verified_follower == true %>
-      <p><%= follower.screen_name %></p>
+  <div>
+    <h2>Verified Followers: </h2>
+    <% if @verified_followers.empty? %>
+      <p>No Verified Followers</p>
+    <% else %>
+      <% @verified_followers.each do |follower| %>
+        <p><%= follower.screen_name %></p>
+      <% end %>
     <% end %>
-  <% end %>
-</div>
+  </div>
 
-<div>
-  <h2>Global Reach of Tweet: </h2><%= @total_followers %>
-</div>
+  <div>
+    <h2>Global Reach of Tweet: </h2><%= @user.total_followers %>
+  </div>
 
-<div>
-  <h2>Recent Followers: </h2>
-  <% @recent_followers.each do |follower| %>
-    <p><%= follower.screen_name %></p>
-  <% end %>
+  <div>
+    <h2>Recent Followers: </h2>
+    <% if @user.followers.nil? %>
+      <p> No follower %>
+    <% else %>
+      <% @recent_followers.each do |follower| %>
+        <p><%= follower.screen_name %></p>
+      <% end %>
+    <% end %>
+  </div>
 </div>

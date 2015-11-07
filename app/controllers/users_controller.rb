@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   # GET /users/:id.:format
   def show
     # authorize! :read, @user
-    if @user.datetime.nil? || Time.now > (@user.datetime) * (60 * 60 * 24)
+    if sync?(@user)
 
       client = Twitter::REST::Client.new do |config|
         config.consumer_key        = ENV['API_KEY']
@@ -15,40 +15,35 @@ class UsersController < ApplicationController
 
       @followers = client.followers(@user.screen_name)
 
-      recent_followers = []
+      total_followers = 0
 
-      @followers.each_with_index do |twitter_follower, index|
+      @followers.each do |twitter_follower|
 
         follower_id = twitter_follower[:id]
         follower = Follower.find_by(twitter_id: follower_id, user_id: @user.id)
-
-        recent_followers << follower if index < 10       
-
+       
         if follower.nil?
-
           follower = Follower.create(
             screen_name: twitter_follower[:screen_name],
             twitter_id: twitter_follower[:id],
             verified_follower: twitter_follower[:verified]
           )
-
           @user.followers << follower 
         end
-
         follower.followers_count = twitter_follower[:followers_count]
         follower.save
-
-        @user.datetime = Time.now
+        total_followers += follower.followers_count
       end
+      @user.sync_at = Time.now
     end
     
-    @total_followers = 0
-    @user.followers.each do |follower|
-      @total_followers += follower.followers_count
-    end
+    @user.total_followers = total_followers
 
-    ten_percent = (@user.followers.count / 10)
-    @sorted_followers = @user.followers.order(followers_count: :desc).first(ten_percent)
+    @sorted_followers_by_count = sort_follower_count(@user)
+
+    @verified_followers = verified_followers(@user)
+
+    @recent_followers = recent_followers(@user)
   end
 
   # GET /users/:id/edit
@@ -105,5 +100,21 @@ class UsersController < ApplicationController
     accessible = [ :name, :email ] # extend with your own params
     accessible << [ :password, :password_confirmation ] unless params[:user][:password].blank?
     params.require(:user).permit(accessible)
+  end
+
+  def recent_followers(user)
+    user.followers.order(id: :desc).limit(10)
+  end
+
+  def verified_followers(user)
+    user.followers.where(verified_follower: true)
+  end
+
+  def sort_follower_count(user)
+    user.followers.order(followers_count: :desc).limit(10)
+  end
+
+  def sync?(user)
+    user.sync_at.nil? || Time.now > (user.sync_at) + 1.day
   end
 end
