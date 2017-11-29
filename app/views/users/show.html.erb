@@ -1,0 +1,48 @@
+<div class="center">
+  <h1>Hello <%= @user.name %>!</h1>
+
+  <div>
+  <h2>Most Influential Followers: </h2>
+    <table class="center">
+      <tr>
+        <td>Twitter User</td>
+        <td>Numbers of Followers</td>
+      </tr>
+      <% @sorted_followers_by_count.each do |follower| %>
+        <tr>
+          <td><%= follower.screen_name %></td>
+          <td><%= follower.followers_count %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+
+  <div>
+    <h2>Verified Followers: </h2>
+    <% if @verified_followers.empty? %>
+      <p>No Verified Followers</p>
+    <% else %>
+      <% @verified_followers.each do |follower| %>
+        <p><%= follower.screen_name %></p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <h2>Global Reach of Tweet: </h2>
+
+    <p><%= @user.total_followers %></p>
+  </div>
+
+  <div>
+    <h2>Recent Followers: </h2>
+    <% if @user.followers.nil? %>
+      <p> No follower %>
+    <% else %>
+      <% @recent_followers.each do |follower| %>
+        <p><%= follower.screen_name %></p>
+      <% end %>
+    <% end %>
+  </div>
+</div>

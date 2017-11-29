@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  has_many :followers
+  
   TEMP_EMAIL_PREFIX = 'change@me'
   TEMP_EMAIL_REGEX = /\Achange@me/
   # Include default devise modules. Others available are:
